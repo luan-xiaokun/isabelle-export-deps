@@ -230,7 +230,7 @@ def main(argv: list[str]) -> int:
 
     with tempfile.TemporaryDirectory(prefix="isabelle-deps-") as tmp:
         tmp_dir = Path(tmp).resolve()
-        out_rel = "deps_out.txt"
+        out_rel = "deps_out.toml"
 
         wrapper_path = write_wrapper_theory(
             wrapper_dir=tmp_dir,
