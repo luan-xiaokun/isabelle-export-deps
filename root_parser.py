@@ -1,0 +1,87 @@
+from pathlib import Path
+
+from lark import Lark
+
+# _grammar = (Path(__file__).parent / "root_parser.lark").read_text()
+_grammar = r"""
+start: (chapter_def | chapter_entry | session_entry)*
+
+chapter_def: CHAPTER_DEFINITION name groups (DESCRIPTION text)?
+
+chapter_entry: CHAPTER name
+
+session_entry: SESSION name groups dir "=" parent property*
+
+property: DESCRIPTION text                                  -> description
+        | OPTIONS opts                                      -> options
+        | SESSIONS name*                                    -> sessions
+        | DIRECTORIES path*                                 -> directories
+        | THEORIES opts (path ("(" "global" ")")?)*         -> theories
+        | DOCUMENT_THEORIES name*                           -> document_theories
+        | DOCUMENT_FILES ( "(" dir ")")? path*              -> document_files
+        | EXPORT_FILES ( "(" dir ")")? ("[" NAT "]")? path* -> export_files
+        | EXPORT_CLASSPATH path*                            -> export_classpath
+
+
+dir: "in" path |
+groups: "(" name+ ")" |
+opts: "[" opt ("," opt)* "]" |
+parent: name "+" |
+
+opt: name "=" value | name
+
+?value: name | NUMBER
+
+?name: NAME | STRING
+?path: PATH | STRING
+?text: STRING | OPEN_CLOSE_STRING | BRACE_STAR_STRING
+
+// Keywords
+CHAPTER_DEFINITION: "chapter_definition"
+CHAPTER: "chapter"
+SESSION: "session"
+DESCRIPTION: "description"
+OPTIONS: "options"
+SESSIONS: "sessions"
+DIRECTORIES: "directories"
+THEORIES: "theories"
+DOCUMENT_THEORIES: "document_theories"
+DOCUMENT_FILES: "document_files"
+EXPORT_FILES: "export_files"
+EXPORT_CLASSPATH: "export_classpath"
+
+// Tokens
+%import common.NUMBER -> NUMBER
+%import common.WS -> WS
+
+NAME: /[A-Za-z][A-Za-z0-9_.'+-]*/
+PATH: /[A-Za-z0-9_\.\-\/_+]+/
+NAT: /[0-9]+/
+BRACE_STAR_STRING: "{*" /(.|[\r\n])*?/ "*}"
+_STRING_INNER: /([^"\\]|\\.)*/
+STRING: "\"" _STRING_INNER "\""
+OPEN_CLOSE_STRING: /\\<open>(?:(?!\\<(?:open|close)>)[\s\S]|\\<open>(?:(?!\\<(?:open|close)>)[\s\S])*\\<close>)*\\<close>/
+
+COMMENT: "(*" /(.|\n)*?/ "*)"
+ISAR_COMMENT: /\\<comment>\s*\\<open>(.|\n)*?\\<close>/
+
+%ignore WS
+%ignore COMMENT
+%ignore ISAR_COMMENT
+"""
+
+_parser = Lark(_grammar, parser="lalr", cache=True)
+
+
+if __name__ == "__main__":
+    import os
+
+    afp_root = os.environ.get("AFP")
+    if not afp_root:
+        raise RuntimeError(
+            "Please set AFP environment variable to your AFP root directory"
+        )
+
+    test_file = Path(afp_root) / "thys" / "Ordinary_Differential_Equations" / "ROOT"
+    result = _parser.parse(test_file.read_text())
+    print(result.pretty())

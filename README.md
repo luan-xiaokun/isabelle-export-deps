@@ -28,6 +28,18 @@ Or with pip:
 pip install isabelle-client
 ```
 
+## AFP Environment Variable (Linux)
+
+This repository provides a helper script to configure the AFP root path:
+
+```bash
+source ./set_afp_env.sh /path/to/afp
+```
+
+If no path is provided, the script prompts you to input the AFP path interactively.
+
+After sourcing, `AFP` points to your AFP root directory and AFP theories are under `$AFP/thys`.
+
 ## Usage
 
 ```
@@ -61,7 +73,7 @@ The `--dir` option tells Isabelle where to find session ROOT files. You **must**
 In practice:
 
 - **Isabelle built-in sessions** (e.g. `HOL-Examples`, `HOL-Library`): their ROOT files ship with Isabelle, so you only need `--dir ExportDeps`.
-- **AFP entries**: AFP sessions are not built-in, so you must additionally pass `--dir` pointing to the AFP entry's directory (which contains the `ROOT` file). For example, `--dir ~/repositories/afp-2025/thys/Completeness`.
+- **AFP entries**: AFP sessions are not built-in, so you must additionally pass `--dir` pointing to the AFP entry's directory (which contains the `ROOT` file). For example, `--dir $AFP/thys/Completeness`.
 
 ## Examples
 
@@ -85,11 +97,11 @@ AFP sessions require an extra `--dir` pointing to the AFP entry folder:
 ```bash
 uv run dep_extract.py \
   --target-session Completeness \
-  --theory ~/repositories/afp-2025/thys/Completeness/Completeness.thy \
+  --theory $AFP/thys/Completeness/Completeness.thy \
   --thms validProofTree \
   --out examples/completeness.txt \
   --dir ExportDeps \
-  --dir ~/repositories/afp-2025/thys/Completeness \
+  --dir $AFP/thys/Completeness \
   --verbose
 ```
 
