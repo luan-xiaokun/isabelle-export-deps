@@ -1,12 +1,13 @@
 theory ExportDeps
-  imports Main
+  imports HOL.HOL
   keywords "export_deps" :: diag
 begin
 
 ML \<open>
-val exporter_version = "0.1.0"
 structure State_Deps =
 struct
+  val exporter_version = "0.1.0"
+
   fun thy_name thy = Context.theory_name {long = true} thy
 
   (* Imports closure (ancestor theory names). *)
@@ -96,6 +97,14 @@ struct
       file ^ ":" ^ line ^ ":" ^ off ^ ":" ^ eoff
     end
 
+  (* Extract the position of the defining command from a theorem's proof term.
+     command_pos in the PThm header is set via Position.thread_data() when the
+     theorem is registered, pointing to the keyword (lemma/fun/...) in source. *)
+  fun thm_command_pos (thm: thm) : Position.T =
+    (case try (Proofterm.term_head_of o Proofterm.proof_head_of o Thm.proof_of) thm of
+      SOME (Proofterm.PThm ({command_pos, ...}, _)) => command_pos
+    | _ => Position.none)
+
   fun pretty_name ctxt (a: Thm_Name.T) : string =
     Print_Mode.setmp [] (fn () =>
       Pretty.unformatted_string_of (Global_Theory.pretty_thm_name ctxt a)) ()
@@ -156,24 +165,23 @@ struct
 
   (* ---------- Dependency collection for one theorem ---------- *)
 
-  fun dep_fingerprint ctxt thy (a: Thm_Name.T) =
-    (case try (fn x => Global_Theory.get_thm_name thy x) (a, Position.none) of
-      SOME dep_thm => sha1_text (plain_term ctxt (Thm.prop_of dep_thm))
-    | NONE => "")
-
   fun collect_dep_rec ctxt thy (thm_id, a: Thm_Name.T) =
     let
       val thy_n = #theory_name thm_id
-      val (a', pos) =
+      val a' =
         (case Global_Theory.lookup_thm_id thy thm_id of
-          SOME pair => pair
-        | NONE => (a, Position.none))
+          SOME (a'', _) => a''   (* discard position — always none *)
+        | NONE => a)
       val (raw, sel) = a'
       val pretty = pretty_name ctxt a'
       val key = key_of thy_n a'
-      val fp = dep_fingerprint ctxt thy a'
+      val (fp, pos_s) =
+        (case try (fn x => Global_Theory.get_thm_name thy x) (a', Position.none) of
+          SOME dep_thm =>
+            (sha1_text (plain_term ctxt (Thm.prop_of dep_thm)),
+             pos_to_string (thm_command_pos dep_thm))
+        | NONE => ("", pos_to_string Position.none))
       val thm_id_s = thm_id_to_string thm_id
-      val pos_s = pos_to_string pos
     in
       Dep {
         key = key,
@@ -214,7 +222,7 @@ struct
 
       val ((raw, sel), key, pretty, theory, thm_id_s, pos_s) =
         (case Global_Theory.lookup_thm thy thm of
-          SOME (thm_id, (a, pos)) =>
+          SOME (thm_id, (a, _)) =>
             let
               val thy_n = #theory_name thm_id
             in
@@ -223,13 +231,13 @@ struct
                pretty_name ctxt a,
                thy_n,
                thm_id_to_string thm_id,
-               pos_to_string pos)
+               pos_to_string (thm_command_pos thm))
             end
         | NONE =>
             let
               val (a, key, pretty, theory, thm_id_s) = fallback_name thy thm
             in
-              (a, key, pretty, theory, thm_id_s, pos_to_string Position.none)
+              (a, key, pretty, theory, thm_id_s, pos_to_string (thm_command_pos thm))
             end)
 
       val deps = thm_deps_records ctxt thm
@@ -324,7 +332,9 @@ val _ =
         Toplevel.keep (fn st =>
           let
             val ctxt = Toplevel.context_of st
-            val thms = Attrib.eval_thms ctxt facts
+            val thms =
+              (Attrib.eval_thms ctxt facts
+               handle ERROR msg => error ("export_deps: " ^ msg))
 
             val thy = Proof_Context.theory_of ctxt
             val base_dir = Resources.master_directory thy
@@ -333,9 +343,14 @@ val _ =
                 NONE => Path.basic "deps.toml"
               | SOME s => Path.explode s)
             val full_path = Path.append base_dir path
-            val txt = State_Deps.report_thms ctxt thms
+
+            val txt =
+              (State_Deps.report_thms ctxt thms
+               handle ERROR msg => error ("export_deps: error collecting theorem data: " ^ msg))
           in
-            File.write full_path txt
+            (File.write full_path txt
+             handle IO.Io {name, ...} =>
+               error ("export_deps: cannot write output file: " ^ name))
           end)))
 end
 \<close>
