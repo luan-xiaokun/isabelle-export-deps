@@ -34,7 +34,7 @@ from typing import Iterable
 
 from isabelle_client import get_isabelle_client, start_isabelle_server  # type: ignore
 
-THEORY_HEADER_RE = re.compile(r"^\s*theory\s+([A-Za-z0-9_'.]+)\s*$")
+THEORY_HEADER_RE = re.compile(r'^\s*theory\s+"?([A-Za-z0-9_\'.]+)"?')
 
 
 @dataclass(frozen=True)
