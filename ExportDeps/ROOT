@@ -1,2 +1,2 @@
-session ExportDeps = HOL +
+session ExportDeps = Pure +
   theories ExportDeps ExtractFacts
