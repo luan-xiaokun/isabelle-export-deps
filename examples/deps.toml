@@ -1,0 +1,858 @@
+[meta]
+current_theory = "ExportDeps.Test"
+theory_ancestors = ["ExportDeps.Test", "Main", "HOL.Quickcheck_Narrowing", "HOL.Quickcheck_Random", "HOL.Random", "HOL.Code_Numeral", "HOL.Bit_Operations", "HOL.Groups_List", "HOL.List", "HOL.Sledgehammer", "HOL.Presburger", "HOL.Groebner_Basis", "HOL.Semiring_Normalization", "HOL.Numeral_Simprocs", "HOL.Parity", "HOL.Euclidean_Division", "HOL.Int", "HOL.Quotient", "HOL.Lifting", "HOL.Equiv_Relations", "HOL.BNF_Least_Fixpoint", "HOL.BNF_Fixpoint_Base", "HOL.BNF_Composition", "HOL.BNF_Def", "HOL.BNF_Cardinal_Arithmetic", "HOL.BNF_Cardinal_Order_Relation", "HOL.Zorn", "HOL.Order_Relation", "HOL.Wfrec", "HOL.Wellfounded", "HOL.Transitive_Closure", "HOL.Relation", "HOL.Finite_Set", "HOL.Product_Type", "HOL.Typedef", "HOL.Set", "HOL.Boolean_Algebras", "HOL.Lattices", "HOL.Groups", "HOL.Orderings", "HOL.HOL", "Tools.Code_Generator", "Pure", "HOL.Inductive", "HOL.Complete_Lattices", "HOL.Fun", "HOL.Ctr_Sugar", "HOL.Sum_Type", "HOL.Fields", "HOL.Nat", "HOL.Rings", "HOL.Hilbert_Choice", "HOL.BNF_Wellorder_Constructions", "HOL.BNF_Wellorder_Embedding", "HOL.BNF_Wellorder_Relation", "HOL.Fun_Def_Base", "HOL.Basic_BNFs", "HOL.Transfer", "HOL.Basic_BNF_LFPs", "HOL.Metis", "HOL.ATP", "HOL.Meson", "HOL.Groups_Big", "HOL.Power", "HOL.Num", "HOL.Fun_Def", "HOL.Partial_Function", "HOL.Complete_Partial_Order", "HOL.Option", "HOL.SAT", "HOL.Argo", "HOL.Lattices_Big", "HOL.Set_Interval", "HOL.SMT", "HOL.Divides", "HOL.Lifting_Set", "HOL.Code_Evaluation", "HOL.Typerep", "HOL.String", "HOL.Enum", "HOL.Map", "HOL.Limited_Sequence", "HOL.Lazy_Sequence", "HOL.Predicate", "HOL.Mirabelle", "HOL.Predicate_Compile", "HOL.Random_Sequence", "HOL.Random_Pred", "HOL.Quickcheck_Exhaustive", "HOL.Extraction", "HOL.Nunchaku", "HOL.Nitpick", "HOL.Record", "HOL.GCD", "HOL.BNF_Greatest_Fixpoint", "HOL.Filter", "HOL.Conditionally_Complete_Lattices", "HOL.Binomial", "HOL.Factorial", "ExportDeps.ExtractFacts", "ExportDeps.ExportDeps"]
+exporter_version = "0.2.0"
+isabelle_identifier = "Isabelle2022"
+
+[[theorems]]
+key = "HOL.Binomial:Binomial.n_subsets"
+raw = "Binomial.n_subsets"
+sel = 0
+pretty = "n_subsets"
+theory = "HOL.Binomial"
+thm_id = "HOL.Binomial#3275206"
+fingerprint = "5d720ae6b7bdb649941badaa15c2ac54c4d18b58"
+proposition = "finite (?A::?'a set) \\<Longrightarrow> card {B::?'a set. B \\<subseteq> ?A \\<and> card B = (?k::nat)} = card ?A choose ?k"
+constants = ["Binomial.binomial", "Finite_Set.card", "Finite_Set.finite", "HOL.Trueprop", "HOL.conj", "HOL.eq", "Orderings.ord_class.less_eq", "Pure.imp", "Set.Collect"]
+types = ["HOL.bool", "Nat.nat", "Set.set", "fun", "prop"]
+has_skip_proof = false
+pos = "~~/src/HOL/Binomial.thy:24:591:600"
+
+[[theorems.dependencies]]
+key = "HOL.Binomial:Binomial.binomial_def"
+raw = "Binomial.binomial_def"
+sel = 0
+pretty = "binomial_def"
+theory = "HOL.Binomial"
+thm_id = "HOL.Binomial#3275004"
+fingerprint = "483920f7fd4df9309ff28a2bea1bb51244f85089"
+pos = "~~/src/HOL/Binomial.thy:21:463:473"
+
+[[theorems.dependencies]]
+key = "HOL.Boolean_Algebras:Boolean_Algebras.boolean_algebra_class.super#3"
+raw = "Boolean_Algebras.boolean_algebra_class.super"
+sel = 3
+pretty = "boolean_algebra_class.super(3)"
+theory = "HOL.Boolean_Algebras"
+thm_id = "HOL.Boolean_Algebras#278384"
+fingerprint = "6d330412ae6216c9ecf166dc784d30c1e29bfae2"
+pos = "~~/src/HOL/Boolean_Algebras.thy:282:7972:7977"
+
+[[theorems.dependencies]]
+key = "HOL.Complete_Lattices:Complete_Lattices.bij_betw_Pow"
+raw = "Complete_Lattices.bij_betw_Pow"
+sel = 0
+pretty = "bij_betw_Pow"
+theory = "HOL.Complete_Lattices"
+thm_id = "HOL.Complete_Lattices#458492"
+fingerprint = "667b8a28ee60beeb3a7845a732cc75406954f3e8"
+pos = "~~/src/HOL/Complete_Lattices.thy:1263:35007:35019"
+
+[[theorems.dependencies]]
+key = "HOL.Complete_Lattices:Complete_Lattices.complete_boolean_algebra_class.super#1"
+raw = "Complete_Lattices.complete_boolean_algebra_class.super"
+sel = 1
+pretty = "complete_boolean_algebra_class.super(1)"
+theory = "HOL.Complete_Lattices"
+thm_id = "HOL.Complete_Lattices#417740"
+fingerprint = "04a3a34d21e8ce9a6fffb4b42a824661b14f5e91"
+pos = "~~/src/HOL/Complete_Lattices.thy:499:14842:14847"
+
+[[theorems.dependencies]]
+key = "HOL.Finite_Set:Finite_Set.card_image"
+raw = "Finite_Set.card_image"
+sel = 0
+pretty = "card_image"
+theory = "HOL.Finite_Set"
+thm_id = "HOL.Finite_Set#849662"
+fingerprint = "8be42164d405bce1460928c887ced2d2167dd50e"
+pos = "~~/src/HOL/Finite_Set.thy:2162:62911:62921"
+
+[[theorems.dependencies]]
+key = "HOL.Fun:Fun.bij_betw_def"
+raw = "Fun.bij_betw_def"
+sel = 0
+pretty = "bij_betw_def"
+theory = "HOL.Fun"
+thm_id = "HOL.Fun#330342"
+fingerprint = "beb55bd1ed036478ddae8158cfa712c6e113329e"
+pos = "~~/src/HOL/Fun.thy:143:3484:3494"
+
+[[theorems.dependencies]]
+key = "HOL.Fun:Fun.bij_betw_imp_inj_on"
+raw = "Fun.bij_betw_imp_inj_on"
+sel = 0
+pretty = "bij_betw_imp_inj_on"
+theory = "HOL.Fun"
+thm_id = "HOL.Fun#336334"
+fingerprint = "320c43ae55836e737481afcc29c4cca636c04e21"
+pos = "~~/src/HOL/Fun.thy:365:9955:9974"
+
+[[theorems.dependencies]]
+key = "HOL.Fun:Fun.bij_betw_subset"
+raw = "Fun.bij_betw_subset"
+sel = 0
+pretty = "bij_betw_subset"
+theory = "HOL.Fun"
+thm_id = "HOL.Fun#337716"
+fingerprint = "2c58c07954c3f3e0de694eab8ac44d580447e7c5"
+pos = "~~/src/HOL/Fun.thy:461:12924:12939"
+
+[[theorems.dependencies]]
+key = "HOL.Fun:Fun.inj_on_subset"
+raw = "Fun.inj_on_subset"
+sel = 0
+pretty = "inj_on_subset"
+theory = "HOL.Fun"
+thm_id = "HOL.Fun#333348"
+fingerprint = "045ae368de35532cadac29e88b031f2c3ce88bd3"
+pos = "~~/src/HOL/Fun.thy:227:5880:5893"
+
+[[theorems.dependencies]]
+key = "HOL.Groups:Groups.canonically_ordered_monoid_add_class.zero_le"
+raw = "Groups.canonically_ordered_monoid_add_class.zero_le"
+sel = 0
+pretty = "zero_le"
+theory = "HOL.Groups"
+thm_id = "HOL.Groups#223366"
+fingerprint = "0964bd9d1c0d73e26d0cf0e3527ce4dd5933bbdd"
+pos = "~~/src/HOL/Groups.thy:1361:36662:36669"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.Eq_TrueI"
+raw = "HOL.Eq_TrueI"
+sel = 0
+pretty = "Eq_TrueI"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#89548"
+fingerprint = "49b1fde50f6a724aac8a6a81f25cd785e91a2448"
+pos = "~~/src/HOL/HOL.thy:1150:30359:30367"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.TrueI"
+raw = "HOL.TrueI"
+sel = 0
+pretty = "TrueI"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#77064"
+fingerprint = "88b33e4e12f75ac8bf792aebde41f1a090f3a612"
+pos = "~~/src/HOL/HOL.thy:318:9190:9195"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.allE"
+raw = "HOL.allE"
+sel = 0
+pretty = "allE"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#77258"
+fingerprint = "9343f7f8c63da9de675e435bd9f25ff7b5901e19"
+pos = "~~/src/HOL/HOL.thy:330:9441:9445"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.arity_type_bool"
+raw = "HOL.arity_type_bool"
+sel = 0
+pretty = "arity_type_bool"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#73054"
+fingerprint = "2b265e5ac47a30fbcd099c0140d174c183ad4e09"
+pos = "~~/src/HOL/HOL.thy:82:2763:2771"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.arity_type_fun"
+raw = "HOL.arity_type_fun"
+sel = 0
+pretty = "arity_type_fun"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#72920"
+fingerprint = "1ef87bd8db6b999d0ecb8e0f7ba2841a72ca2f63"
+pos = "~~/src/HOL/HOL.thy:77:2583:2591"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.atomize_all"
+raw = "HOL.atomize_all"
+sel = 0
+pretty = "atomize_all"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#80926"
+fingerprint = "dd5e8d2eb4be3c3e85b70c16292656a86c469793"
+pos = "~~/src/HOL/HOL.thy:688:17688:17699"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.atomize_imp"
+raw = "HOL.atomize_imp"
+sel = 0
+pretty = "atomize_imp"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#80990"
+fingerprint = "cb402a39c8e3372cb5d07cf197787846c9021f6f"
+pos = "~~/src/HOL/HOL.thy:697:17866:17877"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.ccontr"
+raw = "HOL.ccontr"
+sel = 0
+pretty = "ccontr"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#79174"
+fingerprint = "5376600dc15e151a6e44dfa75221d41ee31811f4"
+pos = "~~/src/HOL/HOL.thy:531:13877:13883"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.classical"
+raw = "HOL.classical"
+sel = 0
+pretty = "classical"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#79136"
+fingerprint = "db1e5824ca9328e1d3bf4e748c342a9628b30ccd"
+pos = "~~/src/HOL/HOL.thy:517:13592:13601"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.conjE"
+raw = "HOL.conjE"
+sel = 0
+pretty = "conjE"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#78880"
+fingerprint = "d1cbda35ea8cdf1abff1a5633ef45ebe71446cf0"
+pos = "~~/src/HOL/HOL.thy:491:13090:13095"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.conjI"
+raw = "HOL.conjI"
+sel = 0
+pretty = "conjI"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#78658"
+fingerprint = "1394a646b61d07b8ecd32805edca305704c1526b"
+pos = "~~/src/HOL/HOL.thy:482:12817:12822"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.conjunct1"
+raw = "HOL.conjunct1"
+sel = 0
+pretty = "conjunct1"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#78726"
+fingerprint = "55bc13fc4ebd0f914e2b6a035ec639b6a8159986"
+pos = "~~/src/HOL/HOL.thy:485:12908:12917"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.conjunct2"
+raw = "HOL.conjunct2"
+sel = 0
+pretty = "conjunct2"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#78794"
+fingerprint = "6928eb654b3e5e8d53b7c028bc34c72fe776d9ce"
+pos = "~~/src/HOL/HOL.thy:488:12999:13008"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.eq_reflection"
+raw = "HOL.eq_reflection"
+sel = 0
+pretty = "eq_reflection"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#80872"
+fingerprint = "ff53be5ce3e7f46dca0c8c5920fe4c9497c4fc6c"
+pos = "~~/src/HOL/HOL.thy:686:17628:17641"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.exE"
+raw = "HOL.exE"
+sel = 0
+pretty = "exE"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#78554"
+fingerprint = "e356d1d0975042466638f8688cffc7a643943ff0"
+pos = "~~/src/HOL/HOL.thy:473:12607:12610"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.iffD1"
+raw = "HOL.iffD1"
+sel = 0
+pretty = "iffD1"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#76890"
+fingerprint = "c292079473d38f4b5f5f8795432f60b31bd48b6b"
+pos = "~~/src/HOL/HOL.thy:303:8880:8885"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.iffD2"
+raw = "HOL.iffD2"
+sel = 0
+pretty = "iffD2"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#76786"
+fingerprint = "7e89e2d75bfec3bb72afd28221f9cd5a3cf727af"
+pos = "~~/src/HOL/HOL.thy:297:8775:8780"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.impCE"
+raw = "HOL.impCE"
+sel = 0
+pretty = "impCE"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#80098"
+fingerprint = "b0e6d6ee87af138e93f9bdbadbdee4f36303f0ca"
+pos = "~~/src/HOL/HOL.thy:607:15881:15886"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.impI"
+raw = "HOL.impI"
+sel = 0
+pretty = "impI"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#75340"
+fingerprint = "39403e8c8a0394a3f9e030c949752cab676b77d4"
+pos = "~~/src/HOL/HOL.thy:219:6870:6874"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.implies_True_equals"
+raw = "HOL.implies_True_equals"
+sel = 0
+pretty = "implies_True_equals"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#91444"
+fingerprint = "52a78bb8cfdc56088286ef2b29b2472b0cc9e543"
+pos = "~~/src/HOL/HOL.thy:1324:36016:36035"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.meta_eq_to_obj_eq"
+raw = "HOL.meta_eq_to_obj_eq"
+sel = 0
+pretty = "meta_eq_to_obj_eq"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#76196"
+fingerprint = "e5bc618c57b0aca123d04ae81e8bf188bdc84eac"
+pos = "~~/src/HOL/HOL.thy:255:7712:7729"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.notE"
+raw = "HOL.notE"
+sel = 0
+pretty = "notE"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#77662"
+fingerprint = "e7a41ecba43f6644b6d00175841d2dc2b497df45"
+pos = "~~/src/HOL/HOL.thy:368:10269:10273"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.refl"
+raw = "HOL.refl"
+sel = 0
+pretty = "refl"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#75240"
+fingerprint = "7794f2e3d395f69d83054b569db3d692187153b0"
+pos = "~~/src/HOL/HOL.thy:209:6473:6477"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.rev_mp"
+raw = "HOL.rev_mp"
+sel = 0
+pretty = "rev_mp"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#77806"
+fingerprint = "f150a7df7159c314fdba8b3c25a9154d158e5a24"
+pos = "~~/src/HOL/HOL.thy:381:10529:10535"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.simp_impliesI"
+raw = "HOL.simp_impliesI"
+sel = 0
+pretty = "simp_impliesI"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#89906"
+fingerprint = "acee9be1cb2155be2a31b1510e66d97bcdecad1d"
+pos = "~~/src/HOL/HOL.thy:1170:30921:30934"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.simp_implies_cong"
+raw = "HOL.simp_implies_cong"
+sel = 0
+pretty = "simp_implies_cong"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#90036"
+fingerprint = "8962888322befdbd299d8d6cbfc7b238385554fe"
+pos = "~~/src/HOL/HOL.thy:1183:31248:31265"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.simp_implies_def"
+raw = "HOL.simp_implies_def"
+sel = 0
+pretty = "simp_implies_def"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#89842"
+fingerprint = "0b2452d8f50075de331e18776bd0c1d981215bf4"
+pos = "~~/src/HOL/HOL.thy:1167:30815:30825"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.simp_thms#22"
+raw = "HOL.simp_thms"
+sel = 22
+pretty = "simp_thms(22)"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#86218"
+fingerprint = "d435dfea0d82b1c6bb82ae26868bfa61b44a3b7f"
+pos = "~~/src/HOL/HOL.thy:976:24586:24595"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.simp_thms#25"
+raw = "HOL.simp_thms"
+sel = 25
+pretty = "simp_thms(25)"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#86224"
+fingerprint = "3554e7e6c7983ab0ddb6691420c4bb4effe00d90"
+pos = "~~/src/HOL/HOL.thy:976:24586:24595"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.simp_thms#6"
+raw = "HOL.simp_thms"
+sel = 6
+pretty = "simp_thms(6)"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#86186"
+fingerprint = "c64ca2fd852761eb0e1687f1446e6289e190bd56"
+pos = "~~/src/HOL/HOL.thy:976:24586:24595"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.subst"
+raw = "HOL.subst"
+sel = 0
+pretty = "subst"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#75242"
+fingerprint = "b2dc5879b423e970ac50c57233fb0e3cdc52486f"
+pos = "~~/src/HOL/HOL.thy:210:6499:6504"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.swap"
+raw = "HOL.swap"
+sel = 0
+pretty = "swap"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#83938"
+fingerprint = "8e1a5cd33cca2a3adfbe71e5b8e6b889ff07cfe6"
+pos = "~~/src/HOL/HOL.thy:783:19979:19983"
+
+[[theorems.dependencies]]
+key = "HOL.HOL:HOL.sym"
+raw = "HOL.sym"
+sel = 0
+pretty = "sym"
+theory = "HOL.HOL"
+thm_id = "HOL.HOL#75972"
+fingerprint = "d90634df58d51774eea151e7fe3a0a32ff989ebc"
+pos = "~~/src/HOL/HOL.thy:243:7445:7448"
+
+[[theorems.dependencies]]
+key = "HOL.Lattices:Lattices.bounded_lattice_class.super#1"
+raw = "Lattices.bounded_lattice_class.super"
+sel = 1
+pretty = "bounded_lattice_class.super(1)"
+theory = "HOL.Lattices"
+thm_id = "HOL.Lattices#264536"
+fingerprint = "82b8f300713d18d9cc980ad89dd09798435b8b41"
+pos = "~~/src/HOL/Lattices.thy:535:13294:13299"
+
+[[theorems.dependencies]]
+key = "HOL.Lattices:Lattices.lattice_class.super#1"
+raw = "Lattices.lattice_class.super"
+sel = 1
+pretty = "lattice_class.super(1)"
+theory = "HOL.Lattices"
+thm_id = "HOL.Lattices#237458"
+fingerprint = "acb77cceefa44c9a6d2b81342501fb09fe7121d9"
+pos = "~~/src/HOL/Lattices.thy:194:4854:4859"
+
+[[theorems.dependencies]]
+key = "HOL.Lattices:Lattices.semilattice_inf_class.super#2"
+raw = "Lattices.semilattice_inf_class.super"
+sel = 2
+pretty = "semilattice_inf_class.super(2)"
+theory = "HOL.Lattices"
+thm_id = "HOL.Lattices#233934"
+fingerprint = "8d23c1a1f129d4d2facf629b1a2fbf681078840d"
+pos = "~~/src/HOL/Lattices.thy:176:4332:4337"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.conj_forward"
+raw = "Meson.conj_forward"
+sel = 0
+pretty = "conj_forward"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#761316"
+fingerprint = "19cd3183ad487b21487d07d9b75cbf321d297741"
+pos = "~~/src/HOL/Meson.thy:100:2733:2745"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.disj_assoc"
+raw = "Meson.disj_assoc"
+sel = 0
+pretty = "Meson.disj_assoc"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#760742"
+fingerprint = "53bd110fca85690a8f84509ca2c3327331dabb88"
+pos = "~~/src/HOL/Meson.thy:54:1474:1484"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.disj_comm"
+raw = "Meson.disj_comm"
+sel = 0
+pretty = "Meson.disj_comm"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#760744"
+fingerprint = "c6216865b4ede288f0cac5d97187c34119c8ce4e"
+pos = "~~/src/HOL/Meson.thy:55:1512:1521"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.disj_forward"
+raw = "Meson.disj_forward"
+sel = 0
+pretty = "disj_forward"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#761376"
+fingerprint = "f4b71a1de4f80bd44a812018878518261499c215"
+pos = "~~/src/HOL/Meson.thy:103:2798:2810"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.iff_to_disjD"
+raw = "Meson.iff_to_disjD"
+sel = 0
+pretty = "Meson.iff_to_disjD"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#760140"
+fingerprint = "ae5223f02d719e9faaf16d33622add29deacdc6c"
+pos = "~~/src/HOL/Meson.thy:29:712:724"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.imp_to_disjD"
+raw = "Meson.imp_to_disjD"
+sel = 0
+pretty = "Meson.imp_to_disjD"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#760134"
+fingerprint = "4095da01bf6608d5fce26d1dd1edf20aa0d9b765"
+pos = "~~/src/HOL/Meson.thy:27:643:655"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.make_neg_goal"
+raw = "Meson.make_neg_goal"
+sel = 0
+pretty = "make_neg_goal"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#761176"
+fingerprint = "6eae1487831eac09b84a5173dddbf645abdd00af"
+pos = "~~/src/HOL/Meson.thy:87:2385:2398"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.make_neg_rule"
+raw = "Meson.make_neg_rule"
+sel = 0
+pretty = "make_neg_rule"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#760868"
+fingerprint = "fe73e51a7ea7d5818683ac908ca67052162aa9dc"
+pos = "~~/src/HOL/Meson.thy:66:1845:1858"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.not_conjD"
+raw = "Meson.not_conjD"
+sel = 0
+pretty = "Meson.not_conjD"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#759954"
+fingerprint = "d0cc68d456496ed9302b83057520d09b690cd4c1"
+pos = "~~/src/HOL/Meson.thy:18:375:384"
+
+[[theorems.dependencies]]
+key = "HOL.Meson:Meson.not_refl_disj_D"
+raw = "Meson.not_refl_disj_D"
+sel = 0
+pretty = "Meson.not_refl_disj_D"
+theory = "HOL.Meson"
+thm_id = "HOL.Meson#760144"
+fingerprint = "6307c4f1befd6857b8ead42d0a31590a96d98d70"
+pos = "~~/src/HOL/Meson.thy:32:881:896"
+
+[[theorems.dependencies]]
+key = "HOL.Nat:Nat.arity_dioid_nat"
+raw = "Nat.arity_dioid_nat"
+sel = 0
+pretty = "arity_dioid_nat"
+theory = "HOL.Nat"
+thm_id = "HOL.Nat#715704"
+fingerprint = "2808eda2b107e2c4fda3e22add467d4cd46b6c46"
+pos = "~~/src/HOL/Nat.thy:861:20952:20960"
+
+[[theorems.dependencies]]
+key = "HOL.Nat:Nat.arity_linorder_nat"
+raw = "Nat.arity_linorder_nat"
+sel = 0
+pretty = "arity_linorder_nat"
+theory = "HOL.Nat"
+thm_id = "HOL.Nat#709188"
+fingerprint = "80ccd696e2174e26ea558cec2941e1439b057b88"
+pos = "~~/src/HOL/Nat.thy:457:10892:10900"
+
+[[theorems.dependencies]]
+key = "HOL.Nat:Nat.arity_type_nat"
+raw = "Nat.arity_type_nat"
+sel = 0
+pretty = "arity_type_nat"
+theory = "HOL.Nat"
+thm_id = "HOL.Nat#700376"
+fingerprint = "87e90f527dbad36765315659b28376e281b26bad"
+pos = "~~/src/HOL/Nat.thy:32:613:620"
+
+[[theorems.dependencies]]
+key = "HOL.Orderings:Orderings.linorder_class.super"
+raw = "Orderings.linorder_class.super"
+sel = 0
+pretty = "linorder_class.super"
+theory = "HOL.Orderings"
+thm_id = "HOL.Orderings#118738"
+fingerprint = "46b3e516d1f982ee79fdfb6cc9fe9fff23f0f69d"
+pos = "~~/src/HOL/Orderings.thy:440:10822:10827"
+
+[[theorems.dependencies]]
+key = "HOL.Orderings:Orderings.order_class.super"
+raw = "Orderings.order_class.super"
+sel = 0
+pretty = "order_class.super"
+theory = "HOL.Orderings"
+thm_id = "HOL.Orderings#112448"
+fingerprint = "0991c3042f961d8c7720169f1750a19103ce7905"
+pos = "~~/src/HOL/Orderings.thy:292:7145:7150"
+
+[[theorems.dependencies]]
+key = "HOL.Orderings:Orderings.order_trans_rules#14"
+raw = "Orderings.order_trans_rules"
+sel = 14
+pretty = "order_trans_rules(14)"
+theory = "HOL.Orderings"
+thm_id = "HOL.Orderings#134486"
+fingerprint = "90cdd7414b74c4e84d2979199521c9043168ab6b"
+pos = "~~/src/HOL/Orderings.thy:944:26419:26436"
+
+[[theorems.dependencies]]
+key = "HOL.Orderings:Orderings.preorder_class.super"
+raw = "Orderings.preorder_class.super"
+sel = 0
+pretty = "preorder_class.super"
+theory = "HOL.Orderings"
+thm_id = "HOL.Orderings#110234"
+fingerprint = "e91e8504620f96b0213ab0b125d2df4d5e6d4b81"
+pos = "~~/src/HOL/Orderings.thy:206:5052:5057"
+
+[[theorems.dependencies]]
+key = "HOL.Product_Type:Product_Type.arity_complete_boolean_algebra_unit"
+raw = "Product_Type.arity_complete_boolean_algebra_unit"
+sel = 0
+pretty = "arity_complete_boolean_algebra_unit"
+theory = "HOL.Product_Type"
+thm_id = "HOL.Product_Type#559048"
+fingerprint = "693987a99be21a8ecb04278fc435e3b7c71db190"
+pos = "~~/src/HOL/Product_Type.thy:174:4237:4245"
+
+[[theorems.dependencies]]
+key = "HOL.Rings:Rings.dioid_class.super#1"
+raw = "Rings.dioid_class.super"
+sel = 1
+pretty = "dioid_class.super(1)"
+theory = "HOL.Rings"
+thm_id = "HOL.Rings#698380"
+fingerprint = "aacb3f2eae8bf5f4f4a32910f0128e67f721ce6d"
+pos = "~~/src/HOL/Rings.thy:2771:74027:74032"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.Pow_iff"
+raw = "Set.Pow_iff"
+sel = 0
+pretty = "Pow_iff"
+theory = "HOL.Set"
+thm_id = "HOL.Set#294232"
+fingerprint = "b2ba26c919e54dc6ca7ae3e9501e0e8b6d003db5"
+pos = "~~/src/HOL/Set.thy:600:16563:16570"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.arity_type_set"
+raw = "Set.arity_type_set"
+sel = 0
+pretty = "arity_type_set"
+theory = "HOL.Set"
+thm_id = "HOL.Set#286100"
+fingerprint = "fe77b7d7c2cae7d500b82ff066a4fe4f5be7634a"
+pos = "~~/src/HOL/Set.thy:15:260:268"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.imageE"
+raw = "Set.imageE"
+sel = 0
+pretty = "imageE"
+theory = "HOL.Set"
+thm_id = "HOL.Set#298430"
+fingerprint = "8670e0c8ca990f03cde3a9ea04fe7b03dd1713fc"
+pos = "~~/src/HOL/Set.thy:854:22531:22537"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.image_cong_simp"
+raw = "Set.image_cong_simp"
+sel = 0
+pretty = "image_cong_simp"
+theory = "HOL.Set"
+thm_id = "HOL.Set#299962"
+fingerprint = "227d4f59caae1952d66ae174940d12a80a21679b"
+pos = "~~/src/HOL/Set.thy:930:24658:24673"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.image_eqI"
+raw = "Set.image_eqI"
+sel = 0
+pretty = "image_eqI"
+theory = "HOL.Set"
+thm_id = "HOL.Set#298204"
+fingerprint = "34a7cdd27d887f44412fae52a908b08d8176ff29"
+pos = "~~/src/HOL/Set.thy:844:22218:22227"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.mem_Collect_eq"
+raw = "Set.mem_Collect_eq"
+sel = 0
+pretty = "mem_Collect_eq"
+theory = "HOL.Set"
+thm_id = "HOL.Set#286206"
+fingerprint = "42554341ae13cea6de09155281fd5eb543f156e9"
+pos = "~~/src/HOL/Set.thy:19:404:418"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.subsetCE"
+raw = "Set.subsetCE"
+sel = 0
+pretty = "subsetCE"
+theory = "HOL.Set"
+thm_id = "HOL.Set#292000"
+fingerprint = "17fe3dfe32a8bed43682767cbbd9ab81cc875c8c"
+pos = "~~/src/HOL/Set.thy:465:13498:13506"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.subsetI"
+raw = "Set.subsetI"
+sel = 0
+pretty = "subsetI"
+theory = "HOL.Set"
+thm_id = "HOL.Set#291760"
+fingerprint = "5c6a044bda2c66ecaf31750093abb1c25ec16849"
+pos = "~~/src/HOL/Set.thy:448:12965:12972"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.subset_antisym"
+raw = "Set.subset_antisym"
+sel = 0
+pretty = "subset_antisym"
+theory = "HOL.Set"
+thm_id = "HOL.Set#292606"
+fingerprint = "145f7638b22cdc10c106f6d98c2a07242613e2db"
+pos = "~~/src/HOL/Set.thy:493:14172:14186"
+
+[[theorems.dependencies]]
+key = "HOL.Set:Set.subset_imageE"
+raw = "Set.subset_imageE"
+sel = 0
+pretty = "subset_imageE"
+theory = "HOL.Set"
+thm_id = "HOL.Set#298882"
+fingerprint = "fc01510b6e8560ebaeb8f3655f5e6d77bfc5af4c"
+pos = "~~/src/HOL/Set.thy:877:23217:23230"
+
+[[theorems.dependencies]]
+key = "HOL.Set_Interval:Set_Interval.ex_bij_betw_nat_finite"
+raw = "Set_Interval.ex_bij_betw_nat_finite"
+sel = 0
+pretty = "ex_bij_betw_nat_finite"
+theory = "HOL.Set_Interval"
+thm_id = "HOL.Set_Interval#2205572"
+fingerprint = "4da323524ca780e8b6bedd56790d6e5644066add"
+pos = "~~/src/HOL/Set_Interval.thy:1403:43193:43215"
+
+[[theorems.dependencies]]
+key = "HOL.Set_Interval:Set_Interval.ord_class.atLeastLessThan_iff"
+raw = "Set_Interval.ord_class.atLeastLessThan_iff"
+sel = 0
+pretty = "atLeastLessThan_iff"
+theory = "HOL.Set_Interval"
+thm_id = "HOL.Set_Interval#2088900"
+fingerprint = "5502962d1f3a85cbda60bdf0fdcd177568284c74"
+pos = "~~/src/HOL/Set_Interval.thy:194:6286:6305"
+
+[[theorems.dependencies]]
+key = "Pure:Pure.protectD"
+raw = "Pure.protectD"
+sel = 0
+pretty = "protectD"
+theory = "Pure"
+thm_id = "Pure#664"
+fingerprint = "adb10bc16d1330049c3b453d82c691182c49d74a"
+pos = "drule.ML:575:-:-"
+
+[[theorems.dependencies]]
+key = "Pure:Pure.protectI"
+raw = "Pure.protectI"
+sel = 0
+pretty = "protectI"
+theory = "Pure"
+thm_id = "Pure#650"
+fingerprint = "f55eba2c05ec136a428855e0046bcc3b75f19818"
+pos = "drule.ML:571:-:-"
+
+[[theorems]]
+key = "ExportDeps.Test:Test.foo'"
+raw = "Test.foo'"
+sel = 0
+pretty = "foo'"
+theory = "ExportDeps.Test"
+thm_id = "ExportDeps.Test#5362546"
+fingerprint = "6a9ff9d22570dd7f6c210afd36ea873106ec3018"
+proposition = "(1::nat) + (2::nat) = (3::nat)"
+constants = ["Groups.one_class.one", "Groups.plus_class.plus", "HOL.Trueprop", "HOL.eq", "Num.num.Bit0", "Num.num.Bit1", "Num.num.One", "Num.numeral_class.numeral"]
+types = ["HOL.bool", "Nat.nat", "Num.num", "fun", "prop"]
+has_skip_proof = false
+pos = "-:-:8:12"
+
+[[theorems.dependencies]]
+key = "ExportDeps.Test:Test.foo"
+raw = "Test.foo"
+sel = 0
+pretty = "foo"
+theory = "ExportDeps.Test"
+thm_id = "ExportDeps.Test#5362504"
+fingerprint = "6a9ff9d22570dd7f6c210afd36ea873106ec3018"
+pos = "-:-:7:10"
+
+[[theorems]]
+key = "HOL.Nat:Nat.nat.induct"
+raw = "Nat.nat.induct"
+sel = 0
+pretty = "nat.induct"
+theory = "HOL.Nat"
+thm_id = "HOL.Nat#703794"
+fingerprint = "f677f736d062378c9a4fd2d540756d52e2ba250a"
+proposition = "\\<lbrakk>(?P::nat \\<Rightarrow> bool) (0::nat); \\<And>nat::nat. ?P nat \\<Longrightarrow> ?P (Suc nat)\\<rbrakk> \\<Longrightarrow> ?P (?nat::nat)"
+constants = ["Groups.zero_class.zero", "HOL.Trueprop", "Nat.Suc", "Pure.all", "Pure.imp"]
+types = ["HOL.bool", "Nat.nat", "fun", "prop"]
+has_skip_proof = false
+pos = "~~/src/HOL/Nat.thy:109:2615:2621"
+
+[[theorems.dependencies]]
+key = "HOL.Nat:Nat.old.nat.induct"
+raw = "Nat.old.nat.induct"
+sel = 0
+pretty = "old.nat.induct"
+theory = "HOL.Nat"
+thm_id = "HOL.Nat#702752"
+fingerprint = "f677f736d062378c9a4fd2d540756d52e2ba250a"
+pos = "~~/src/HOL/Nat.thy:98:2311:2327"
+
