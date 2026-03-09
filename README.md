@@ -22,12 +22,6 @@ cd isabelle-export-deps
 uv sync
 ```
 
-Or with pip:
-
-```bash
-pip install isabelle-client
-```
-
 ## AFP Environment Variable (Linux)
 
 This repository provides a helper script to configure the AFP root path:
@@ -40,7 +34,9 @@ If no path is provided, the script prompts you to input the AFP path interactive
 
 After sourcing, `AFP` points to your AFP root directory and AFP theories are under `$AFP/thys`.
 
-## Usage
+---
+
+## Extraction
 
 ### Single theory (`dep_extract.py`)
 
@@ -53,6 +49,7 @@ uv run dep_extract.py \
   --thms <THM1> [<THM2> ...] \
   --out <OUTPUT_FILE> \
   --dir <DIR> [--dir <DIR2> ...] \
+  [--isabelle-home <PATH>] \
   [--verbose]
 ```
 
@@ -63,6 +60,7 @@ uv run dep_extract.py \
 | `--thms` | One or more theorem/fact names to analyze |
 | `--out` | Path where the TOML report will be written (`.toml` or `.toml.zst`) |
 | `--dir` | Additional Isabelle root directories (**repeatable**; `ExportDeps/` is added automatically) |
+| `--isabelle-home` | Isabelle installation directory (default: auto-detect via `$PATH`) |
 | `--verbose` | Print Isabelle server diagnostics to stderr |
 
 ### Bulk extraction (`bulk_deps.py`)
@@ -78,11 +76,112 @@ uv run bulk_deps.py isabelle <COMPONENT...> --out-dir <DIR> [--isabelle-home <PA
 All subcommands accept `--isabelle-home PATH` to specify the Isabelle installation directory
 (default: auto-detect via `isabelle getenv` or `isabelle` in `$PATH`).
 
-### `--dir` Rules (dep_extract.py)
+### `--dir` Rules
 
 - **Isabelle built-in sessions** (e.g. `HOL-Examples`, `HOL-Library`): `ExportDeps/` is added automatically; no extra `--dir` needed.
 - **AFP entries**: pass `--dir $AFP/thys/<EntryName>` (the directory containing the entry's `ROOT` file).
 - **Custom projects**: pass the directory containing the project's `ROOT` file.
+
+---
+
+## Database
+
+After running bulk extraction you can import all `.toml`/`.toml.zst` files into a SQLite database for fast querying.
+
+### Build the database (`build_db.py`)
+
+#### `import` — populate from TOML files
+
+```
+uv run build_db.py import \
+  --input-dir <DIR> \
+  --output-db <PATH.db> \
+  [--isabelle-home <PATH>] \
+  [--afp-root <PATH>] \
+  [--verbose]
+```
+
+| Option | Description |
+|---|---|
+| `--input-dir` | Directory tree containing `.toml` / `.toml.zst` files (layout produced by `bulk_deps.py`) |
+| `--output-db` | Output SQLite database path (created if absent) |
+| `--isabelle-home` | Isabelle installation directory — used to normalize `~~/.../file.thy` positions |
+| `--afp-root` | AFP root directory — used to normalize `$AFP/…` positions |
+| `--verbose` | Log every imported file |
+
+When both `.toml` and `.toml.zst` exist for the same stem, `.toml.zst` takes precedence.
+
+#### `prepare-share` — compact and compress for distribution
+
+```
+uv run build_db.py prepare-share \
+  --db <PATH.db> \
+  --out <PATH.db.zst> \
+  [--compression-level 19]
+```
+
+Runs a WAL checkpoint, `VACUUM`, `ANALYZE`, then compresses the database with zstd.
+The recipient decompresses with `zstd -d <file>.db.zst`.
+
+### Query the database (`query_db.py`)
+
+All subcommands accept `--db PATH` (required) plus optional `--isabelle-home` / `--afp-root` for source-position expansion, and `--json` to emit machine-readable JSON.
+
+#### `deps` — forward dependencies
+
+List every theorem that a given theorem depends on:
+
+```
+uv run query_db.py deps \
+  --db deps_db/Isabelle2025-2.db \
+  --key "HOL.Binomial:Binomial.n_subsets"
+```
+
+#### `rdeps` — reverse dependencies
+
+List every theorem that depends on a given theorem:
+
+```
+uv run query_db.py rdeps \
+  --db deps_db/Isabelle2025-2.db \
+  --key "HOL.Binomial:Binomial.n_subsets"
+```
+
+#### `search` — search by name
+
+Search theorems by pretty name (`%` is a wildcard); optionally restrict to a theory:
+
+```
+uv run query_db.py search \
+  --db deps_db/Isabelle2025-2.db \
+  --name "n_subsets%" \
+  [--theory "HOL.Binomial"]
+```
+
+#### `show` — full theorem details
+
+Show all stored fields for a single theorem:
+
+```
+uv run query_db.py show \
+  --db deps_db/Isabelle2025-2.db \
+  --key "HOL.Binomial:Binomial.n_subsets" \
+  [--isabelle-home ~/Isabelle2025] [--afp-root /data/afp]
+```
+
+### Database schema
+
+The SQLite database contains three tables:
+
+| Table | Description |
+|---|---|
+| `theories` | One row per theory file (`session`, `theory`, `ancestors`, `exporter_version`) |
+| `theorems` | One row per theorem/lemma/definition (`key`, `pretty`, `theory`, `proposition`, `constants`, `types`, `fingerprint`, `pos`, …) |
+| `dep_edges` | Directed dependency edges (`theorem_id → dep_id`) |
+
+Source positions (`pos`) are stored in a portable symbolic form (`~~/.../file.thy` for Isabelle built-ins, `$AFP/.../file.thy` for AFP) and expanded back to absolute paths at query time when `--isabelle-home` / `--afp-root` are provided.
+
+---
 
 ## Examples
 
@@ -121,7 +220,37 @@ uv run bulk_deps.py afp \
   --jobs 4
 ```
 
-### Output format
+### 4. Import into a database
+
+```bash
+uv run build_db.py import \
+  --input-dir /tmp/deps_out \
+  --output-db deps_db/Isabelle2025.db \
+  --isabelle-home ~/Isabelle2025 \
+  --afp-root $AFP
+```
+
+### 5. Query the database
+
+```bash
+# All theorems that ackloop_dom_longer depends on
+uv run query_db.py deps \
+  --db deps_db/Isabelle2025.db \
+  --key "HOL-Examples.Ackermann:ackloop_dom_longer"
+
+# Search by name
+uv run query_db.py search --db deps_db/Isabelle2025.db --name "ackloop%"
+
+# Full details
+uv run query_db.py show \
+  --db deps_db/Isabelle2025.db \
+  --key "HOL-Examples.Ackermann:ackloop_dom_longer" \
+  --isabelle-home ~/Isabelle2025
+```
+
+---
+
+## Output format (TOML)
 
 Output is TOML (optionally compressed with zstandard, `.toml.zst`):
 
@@ -152,6 +281,8 @@ key = "HOL.Nat:Suc_le_mono"
 
 See the [examples/](examples/) directory for full sample outputs.
 
+---
+
 ## Supported Fact-Defining Commands
 
 The following Isabelle outer-syntax commands are recognised by the extractor
@@ -176,11 +307,16 @@ Both must be kept in sync when adding new command support.
 1. `supported_command` in `ExportDeps/ExtractFacts.thy`
 2. `SUPPORTED_COMMANDS` in `thy_filter.py`
 
+---
+
 ## Project Structure
 
 ```
 dep_extract.py              Single-theory extraction (named theorems)
 bulk_deps.py                Batch extraction (by session/AFP/Isabelle src)
+build_db.py                 Build/maintain the SQLite database (import, prepare-share)
+query_db.py                 Query the SQLite database (deps, rdeps, search, show)
+deps_db.py                  Peewee models and shared DB helpers (Theory, Theorem, DepEdge)
 thy_filter.py               Pre-filter: skip .thy files with no supported commands
 session.py                  ROOT file parsing and theory-to-session mapping
 root_parser.py              Lark LALR grammar for Isabelle ROOT files
