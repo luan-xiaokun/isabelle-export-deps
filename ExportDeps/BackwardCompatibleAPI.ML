@@ -149,4 +149,16 @@ struct
     try_ml "val context__theory_name: {long: bool} -> theory -> string = Context.theory_name"
     orelse try_ml "val context__theory_name: {long: bool} -> theory -> string = Context.theory_name'"
 
+  (* In 2022/2023/2024, Pretty.unformatted_string_of includes YXML markup bytes
+     from Pretty blocks (bg/en stored verbatim in the tree and added to Buffer
+     unconditionally).  YXML.content_of strips them, yielding plain text.
+     In 2025 the function uses output_ops/pure_output_ops which already strips
+     markup when PIDE is not active (i.e. when Print_Mode.setmp [] is in effect),
+     so YXML.content_of is absent and the bare call suffices. *)
+  val defined_pretty__unformatted_plain =
+    try_ml "val pretty__unformatted_plain : Pretty.T -> string = \
+\     YXML.content_of o Pretty.unformatted_string_of"
+    orelse try_ml "val pretty__unformatted_plain : Pretty.T -> string = \
+\     Pretty.unformatted_string_of"
+
 end

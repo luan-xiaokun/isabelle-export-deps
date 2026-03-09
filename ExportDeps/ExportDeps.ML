@@ -61,7 +61,7 @@ struct
       let
         val ctxt' = Config.put Printer.show_types true ctxt
       in
-        Pretty.unformatted_string_of (Syntax.pretty_term ctxt' t)
+        pretty__unformatted_plain (Syntax.pretty_term ctxt' t)
       end) ()
 
   fun sha1_text s = SHA1.rep (SHA1.digest s)
@@ -110,7 +110,7 @@ struct
 
   fun pretty_name ctxt (a: Thm_Name.T) : string =
     Print_Mode.setmp [] (fn () =>
-      Pretty.unformatted_string_of (global_theory__pretty_thm_name ctxt a)) ()
+      pretty__unformatted_plain (global_theory__pretty_thm_name ctxt a)) ()
 
   fun fallback_name thy thm : Thm_Name.T * string * string * string * string =
     let

@@ -138,10 +138,10 @@ def glob_theory_file_with_session(
     for thy_file in theories_dir.glob("**/*.thy"):
         thy_dir = thy_file.parent
         session = dir_session_map.get(thy_dir)
-        if verbose and session is None:
-            print(f"Warning: No session found for theory file {thy_file}")
-        else:
+        if session is not None:
             yield thy_file, session
+        elif verbose:
+            print(f"Warning: No session found for theory file {thy_file}")
 
 
 def test():

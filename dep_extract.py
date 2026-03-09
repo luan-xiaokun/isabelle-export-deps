@@ -34,7 +34,7 @@ from typing import Iterable
 
 from isabelle_client import get_isabelle_client, start_isabelle_server  # type: ignore
 
-THEORY_HEADER_RE = re.compile(r'^\s*theory\s+"?([A-Za-z0-9_\'.]+)"?')
+THEORY_HEADER_RE = re.compile(r'^\s*theory\s+"?([A-Za-z0-9_\'.-]+)"?')
 
 
 @dataclass(frozen=True)
@@ -53,18 +53,6 @@ class JobConfig:
     dirs: list[str] = None  # additional -d dirs
     include_sessions: list[str] = None  # optional include_sessions
     verbose: bool = False
-
-
-def read_theory_name(theory_file: Path) -> str:
-    """Extract theory name from header line: `theory Name`."""
-    with theory_file.open("r", encoding="utf-8") as f:
-        for line in f:
-            m = THEORY_HEADER_RE.match(line)
-            if m:
-                return m.group(1)
-            if line.strip().startswith("imports") or line.strip().startswith("begin"):
-                break
-    raise ValueError(f"Cannot find theory header in: {theory_file}")
 
 
 def write_wrapper_theory(
@@ -222,7 +210,7 @@ def main(argv: list[str]) -> int:
         print(f"[error] theory file not found: {cfg.theory_path}", file=sys.stderr)
         return 2
 
-    target_theory_name = read_theory_name(cfg.theory_path)
+    target_theory_name = cfg.theory_path.stem
 
     # session-qualified imports (avoid namespace ambiguity)
     exportdeps_import = f"{cfg.exportdeps_session}.{cfg.exportdeps_theory}"

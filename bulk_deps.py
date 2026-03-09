@@ -41,13 +41,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from concurrent.futures import ProcessPoolExecutor, as_completed
+import threading
 from pathlib import Path
 
 import zstandard as zstd
 from isabelle_client import get_isabelle_client, start_isabelle_server  # type: ignore
 
-from dep_extract import _iter_messages, read_theory_name
+from dep_extract import _iter_messages
 from session import (
     build_dir_session_map,
     glob_theory_file_with_session,
@@ -58,6 +58,8 @@ from thy_filter import has_supported_commands
 log = logging.getLogger(__name__)
 
 WRAPPER_THEORY_NAME = "Deps_Wrapper"
+THEORY_TIMEOUT = 120  # seconds — max time for use_theories per theory
+BLACKLIST_THEORIES = ["UTP/utp/utp_dvar.thy"]
 
 
 # ---------------------------------------------------------------------------
@@ -120,8 +122,6 @@ def detect_afp_version(afp_root: Path, override: str | None) -> str:
 # ---------------------------------------------------------------------------
 # Wrapper theory construction
 # ---------------------------------------------------------------------------
-
-
 def write_wrapper_theory(
     wrapper_dir: Path,
     session_name: str,
@@ -160,8 +160,6 @@ def write_wrapper_theory(
 # ---------------------------------------------------------------------------
 # Output path computation
 # ---------------------------------------------------------------------------
-
-
 def output_path_for(
     out_dir: Path,
     isabelle_id: str,
@@ -182,8 +180,6 @@ def output_path_for(
 # ---------------------------------------------------------------------------
 # Core: run extract_deps for one theory within an open Isabelle session
 # ---------------------------------------------------------------------------
-
-
 def run_extract_deps(
     isabelle,
     session_id: str,
@@ -210,18 +206,37 @@ def run_extract_deps(
             exportdeps_dir,
         )
 
-        try:
-            use_resps = isabelle.use_theories(
-                theories=[WRAPPER_THEORY_NAME],
-                master_dir=str(tmp_dir),
-                session_id=session_id,
+        result_holder: list = [None]
+        exc_holder: list = [None]
+
+        def _call_use():
+            try:
+                result_holder[0] = isabelle.use_theories(
+                    theories=[WRAPPER_THEORY_NAME],
+                    master_dir=str(tmp_dir),
+                    session_id=session_id,
+                )
+            except Exception as e:
+                exc_holder[0] = e
+
+        t = threading.Thread(target=_call_use, daemon=True)
+        t.start()
+        t.join(timeout=THEORY_TIMEOUT)
+        if t.is_alive():
+            log.error(
+                "Timeout (%ds) extracting %s — skipping",
+                THEORY_TIMEOUT,
+                theory_path.name,
             )
-            if verbose:
-                for m in _iter_messages(use_resps):
-                    log.debug("[use] %s", m)
-        except Exception as e:
-            log.error("use_theories failed for %s: %s", theory_path.name, e)
             return False
+        if exc_holder[0] is not None:
+            log.error("use_theories failed for %s: %s", theory_path.name, exc_holder[0])
+            return False
+        use_resps = result_holder[0]
+
+        if verbose:
+            for m in _iter_messages(use_resps):
+                log.debug("[use] %s", m)
 
         produced = tmp_dir / out_filename
         if not produced.exists():
@@ -308,7 +323,7 @@ def _session_worker(
     isabelle = get_isabelle_client(server_info)
 
     try:
-        _log.info("session_start (dirs=%d)", len(dirs))
+        _log.info("session_start [%s] (dirs=%d)", session_name, len(dirs))
         start_resps = isabelle.session_start(
             session=session_name,
             dirs=dirs,
@@ -324,7 +339,7 @@ def _session_worker(
             thy_path = Path(thy_str)
 
             try:
-                thy_name = read_theory_name(thy_path)
+                thy_name = thy_path.stem
             except Exception as e:
                 _log.warning("Cannot read theory name from %s: %s", thy_path.name, e)
                 errors.append(f"{thy_path}: {e}")
@@ -397,8 +412,6 @@ def _session_worker(
 # ---------------------------------------------------------------------------
 # Isabelle home detection
 # ---------------------------------------------------------------------------
-
-
 def get_isabelle_home() -> Path | None:
     """Return ISABELLE_HOME via `isabelle getenv`."""
     try:
@@ -422,8 +435,6 @@ def get_isabelle_home() -> Path | None:
 # ---------------------------------------------------------------------------
 # Shared dispatch helper for afp / isabelle subcommands
 # ---------------------------------------------------------------------------
-
-
 def _run_sessions(
     by_session: dict[str, list[str]],
     dirs: list[str],
@@ -432,7 +443,6 @@ def _run_sessions(
     isabelle_id: str,
     compress: bool,
     skip_existing: bool,
-    jobs: int,
     verbose: bool,
     log_dir: Path | None,
     isabelle_home: Path | None = None,
@@ -443,67 +453,33 @@ def _run_sessions(
     exportdeps_dir_str = str(exportdeps_dir)
     isabelle_home_str = str(isabelle_home) if isabelle_home else None
 
-    if jobs <= 1:
-        for sname, thy_paths in by_session.items():
-            result = _session_worker(
-                sname,
-                thy_paths,
-                dirs,
-                str(out_dir),
-                isabelle_id,
-                compress,
-                skip_existing,
-                verbose,
-                log_dir_str,
-                exportdeps_dir_str,
-                isabelle_home_str,
-            )
-            total_success += result["success"]
-            total_skipped += result["skipped"]
-            total_no_cmds += result["no_cmds"]
-            total_errors += len(result["errors"])
-            if result["errors"]:
-                log.warning("[%s] %d error(s)", sname, len(result["errors"]))
-    else:
-        with ProcessPoolExecutor(max_workers=jobs) as executor:
-            futures = {
-                executor.submit(
-                    _session_worker,
-                    sname,
-                    thy_paths,
-                    dirs,
-                    str(out_dir),
-                    isabelle_id,
-                    compress,
-                    skip_existing,
-                    verbose,
-                    log_dir_str,
-                    exportdeps_dir_str,
-                    isabelle_home_str,
-                ): sname
-                for sname, thy_paths in by_session.items()
-            }
-            for future in as_completed(futures):
-                sname = futures[future]
-                try:
-                    result = future.result()
-                    total_success += result["success"]
-                    total_skipped += result["skipped"]
-                    total_no_cmds += result["no_cmds"]
-                    total_errors += len(result["errors"])
-                    if result["errors"]:
-                        log.warning("[%s] %d error(s)", sname, len(result["errors"]))
-                except Exception as e:
-                    log.error("[%s] worker crashed: %s", sname, e)
-                    total_errors += 1
+    for sname, thy_paths in by_session.items():
+        result = _session_worker(
+            sname,
+            thy_paths,
+            dirs,
+            str(out_dir),
+            isabelle_id,
+            compress,
+            skip_existing,
+            verbose,
+            log_dir_str,
+            exportdeps_dir_str,
+            isabelle_home_str,
+        )
+        total_success += result["success"]
+        total_skipped += result["skipped"]
+        total_no_cmds += result["no_cmds"]
+        total_errors += len(result["errors"])
+        if result["errors"]:
+            log.warning("[%s] %d error(s)", sname, len(result["errors"]))
+
     return total_success, total_skipped, total_no_cmds, total_errors
 
 
 # ---------------------------------------------------------------------------
 # theory subcommand
 # ---------------------------------------------------------------------------
-
-
 def cmd_theory(args) -> int:
     theory_path = Path(args.theory).resolve()
     if not theory_path.exists():
@@ -513,9 +489,7 @@ def cmd_theory(args) -> int:
     out_path = Path(args.out).resolve()
     compress = args.out.endswith(".zst")
 
-    isabelle_home = (
-        Path(args.isabelle_home).resolve() if args.isabelle_home else None
-    )
+    isabelle_home = Path(args.isabelle_home).resolve() if args.isabelle_home else None
     _setup_isabelle_path(isabelle_home)
 
     script_dir = Path(__file__).resolve().parent
@@ -527,7 +501,7 @@ def cmd_theory(args) -> int:
     dirs = [str(exportdeps_dir)] + list(args.dir)
 
     try:
-        theory_name = read_theory_name(theory_path)
+        theory_name = theory_path.stem
     except ValueError as e:
         log.error("%s", e)
         return 2
@@ -601,7 +575,6 @@ def cmd_afp(args) -> int:
     out_dir = Path(args.out_dir).resolve()
     compress = bool(args.compress)
     skip_existing = bool(args.skip_existing)
-    jobs = max(1, int(args.jobs))
     verbose = bool(args.verbose)
 
     _setup_isabelle_path(isabelle_home)
@@ -630,20 +603,38 @@ def cmd_afp(args) -> int:
             all_afp_dirs.add(session.root_file.parent)
 
     dirs = [str(exportdeps_dir)] + [str(d) for d in sorted(all_afp_dirs)]
-    all_sessions = set()
 
     # Group theories by session, applying optional glob filter.
     by_session: dict[str, list[str]] = {}
     for thy_path, session in pairs:
-        all_sessions.add(session.name if session else "<no-session>")
-        if session is None:
+        if any(str(thy_path).endswith(b) for b in BLACKLIST_THEORIES):
+            print(f"Skipping blacklisted theory: {thy_path}")
             continue
+
+        if session is None:
+            print(f"Warning: No session found for theory file {thy_path} — skipping")
+            continue
+
+        if not has_supported_commands(thy_path):
+            print(f"Skipping (no supported commands): {thy_path}")
+            continue
+
         sname = session.name
+        if args.sessions_list and sname not in args.sessions_list:
+            continue
         if args.sessions and not fnmatch.fnmatch(sname, args.sessions):
             continue
+
+        out_path = output_path_for(
+            args.out_dir, isabelle_id, sname, thy_path.stem, compress
+        )
+        if skip_existing and out_path.exists():
+            print(f"Skipping existing output: {out_path}")
+            continue
+
         by_session.setdefault(sname, []).append(str(thy_path))
 
-    log.info("Processing %d sessions  (jobs=%d)", len(by_session), jobs)
+    log.info("Processing %d sessions", len(by_session))
 
     # Set up log directory if specified
     log_dir = None
@@ -660,7 +651,6 @@ def cmd_afp(args) -> int:
         isabelle_id,
         compress,
         skip_existing,
-        jobs,
         verbose,
         log_dir,
         isabelle_home,
@@ -692,7 +682,6 @@ def cmd_isabelle(args) -> int:
     out_dir = Path(args.out_dir).resolve()
     compress = bool(args.compress)
     skip_existing = bool(args.skip_existing)
-    jobs = max(1, int(args.jobs))
     verbose = bool(args.verbose)
 
     script_dir = Path(__file__).resolve().parent
@@ -731,9 +720,19 @@ def cmd_isabelle(args) -> int:
                 continue
             if args.sessions and not fnmatch.fnmatch(sname, args.sessions):
                 continue
+            if args.sessions_list and sname not in args.sessions_list:
+                continue
+
+            out_path = output_path_for(
+                args.out_dir, isabelle_id, sname, thy_file.stem, compress
+            )
+            if skip_existing and out_path.exists():
+                print(f"Skipping existing output: {out_path}")
+                continue
+
             by_session.setdefault(sname, []).append(str(thy_file))
 
-    log.info("Processing %d sessions (jobs=%d)", len(by_session), jobs)
+    log.info("Processing %d sessions", len(by_session))
 
     # Set up log directory if specified
     log_dir = None
@@ -750,7 +749,6 @@ def cmd_isabelle(args) -> int:
         isabelle_id,
         compress,
         skip_existing,
-        jobs,
         verbose,
         log_dir,
         isabelle_home,
@@ -837,13 +835,6 @@ def main(argv: list[str]) -> int:
         "--compress", action="store_true", help="Write .toml.zst instead of .toml"
     )
     p_afp.add_argument(
-        "--jobs",
-        type=int,
-        default=1,
-        metavar="N",
-        help="Number of parallel session workers (default: 1)",
-    )
-    p_afp.add_argument(
         "--skip-existing",
         action="store_true",
         help="Skip theories whose output file already exists (resumable runs)",
@@ -853,6 +844,14 @@ def main(argv: list[str]) -> int:
         default=None,
         metavar="PATTERN",
         help="Glob pattern for session names to process (e.g. 'Completeness')",
+    )
+    p_afp.add_argument(
+        "--sessions-list",
+        type=str,
+        default=None,
+        nargs="+",
+        metavar="SESSION",
+        help="Explicit list of session names to process (alternative to --sessions glob)",
     )
     p_afp.add_argument(
         "--log-dir",
@@ -877,7 +876,6 @@ def main(argv: list[str]) -> int:
     _add_exportdeps_dir(p_isabelle)
     _add_isabelle_home(p_isabelle)
     p_isabelle.add_argument("--compress", action="store_true", help="Write .toml.zst")
-    p_isabelle.add_argument("--jobs", type=int, default=1, metavar="N")
     p_isabelle.add_argument("--skip-existing", action="store_true")
     p_isabelle.add_argument(
         "--sessions",
@@ -905,13 +903,13 @@ def main(argv: list[str]) -> int:
 
     if args.subcommand == "theory":
         return cmd_theory(args)
-    elif args.subcommand == "afp":
+    if args.subcommand == "afp":
         return cmd_afp(args)
-    elif args.subcommand == "isabelle":
+    if args.subcommand == "isabelle":
         return cmd_isabelle(args)
-    else:
-        ap.print_help()
-        return 1
+
+    ap.print_help()
+    return 1
 
 
 if __name__ == "__main__":
