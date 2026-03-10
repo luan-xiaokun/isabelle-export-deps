@@ -34,6 +34,41 @@ from typing import Iterable
 
 from isabelle_client import get_isabelle_client, start_isabelle_server  # type: ignore
 
+# ---------------------------------------------------------------------------
+# Compatibility patch for Isabelle 2025-1
+# ---------------------------------------------------------------------------
+# Isabelle 2025-1 sends a new "nodes_status" notification during session_start.
+# isabelle-client ≤ 1.0.2 only models TheoryProgressNotification | MessageNotification
+# in NotificationResponse, so pydantic raises a ValidationError for the unknown kind,
+# crashing the entire session_start call.  We add a permissive fallback model so that
+# any unknown notification type is accepted silently.
+def _patch_isabelle_client_notification_response() -> None:
+    try:
+        from pydantic import BaseModel, ConfigDict
+        import isabelle_client.data_models as _dm
+        import isabelle_client.isabelle_client as _icc
+
+        if getattr(_icc, "_notification_response_patched", False):
+            return
+
+        class _UnknownNotification(BaseModel):
+            model_config = ConfigDict(extra="allow")
+
+        class _PatchedNotificationResponse(_dm.IsabelleResponse):
+            response_body: (
+                _dm.TheoryProgressNotification
+                | _dm.MessageNotification
+                | _UnknownNotification
+            )
+
+        _icc.NotificationResponse = _PatchedNotificationResponse
+        _icc._notification_response_patched = True  # type: ignore[attr-defined]
+    except Exception:
+        pass  # If patching fails, proceed with original behaviour
+
+
+_patch_isabelle_client_notification_response()
+
 THEORY_HEADER_RE = re.compile(r'^\s*theory\s+"?([A-Za-z0-9_\'.-]+)"?')
 
 

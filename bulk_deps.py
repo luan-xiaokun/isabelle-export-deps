@@ -626,7 +626,7 @@ def cmd_afp(args) -> int:
             continue
 
         out_path = output_path_for(
-            args.out_dir, isabelle_id, sname, thy_path.stem, compress
+            Path(args.out_dir), isabelle_id, sname, thy_path.stem, compress
         )
         if skip_existing and out_path.exists():
             print(f"Skipping existing output: {out_path}")
@@ -720,11 +720,9 @@ def cmd_isabelle(args) -> int:
                 continue
             if args.sessions and not fnmatch.fnmatch(sname, args.sessions):
                 continue
-            if args.sessions_list and sname not in args.sessions_list:
-                continue
 
             out_path = output_path_for(
-                args.out_dir, isabelle_id, sname, thy_file.stem, compress
+                Path(args.out_dir), isabelle_id, sname, thy_file.stem, compress
             )
             if skip_existing and out_path.exists():
                 print(f"Skipping existing output: {out_path}")
