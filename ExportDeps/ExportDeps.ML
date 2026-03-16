@@ -7,7 +7,7 @@ open BackComp
 
 structure State_Deps =
 struct
-  val exporter_version = "0.2.0"
+  val exporter_version = "0.3.0"
 
   fun thm__the_name_hint thm =
     let val thm_name = thm_name__parse (properties__get_string (Thm.get_tags thm) Markup.nameN)
@@ -135,10 +135,93 @@ struct
         end
     end
 
+  (* ---------- Locale helpers ---------- *)
+
+  fun detect_locale_of_thm thy (thm_name: string) : string option =
+    let
+      val locales =
+        (case try locale__get_locales thy of
+          SOME ls => ls | NONE => [])
+      val sorted = sort (int_ord o swap o apply2 size) locales
+    in
+      List.find (fn loc => String.isPrefix (loc ^ ".") thm_name) sorted
+    end
+
+  fun pretty_typ ctxt T =
+    Print_Mode.setmp [] (fn () =>
+      pretty__unformatted_plain (Syntax.pretty_typ ctxt T)) ()
+
+  fun extract_locale_params ctxt thy locale_name : (string * string) list =
+    (case try (locale__params_of thy) locale_name of
+      SOME params => map (fn ((n, T), _) => (n, pretty_typ ctxt T)) params
+    | NONE => [])
+
+  fun extract_locale_assumptions thy locale_name : string list =
+    (case try (locale__hyp_spec_of thy) locale_name of
+      SOME elems =>
+        map_filter (fn Element.Assumes asms =>
+            SOME (maps (fn ((b, _), _) => [Binding.name_of b]) asms)
+          | _ => NONE) elems
+        |> flat
+    | NONE => [])
+
+  fun extract_locale_defines thy locale_name : string list =
+    (case try (locale__hyp_spec_of thy) locale_name of
+      SOME elems =>
+        map_filter (fn Element.Defines defs =>
+            SOME (maps (fn ((b, _), _) => [Binding.name_of b]) defs)
+          | _ => NONE) elems
+        |> flat
+    | NONE => [])
+
+  fun locale_axiom_names thy locale_name : string list =
+    (case try (locale__axioms_of thy) locale_name of
+      SOME axs => map_filter (fn ax =>
+        case try thm__get_name_hint ax of
+          SOME (n, _) => if n = "" then NONE else SOME n
+        | NONE => NONE) axs
+    | NONE => [])
+
+  fun classify_dep thy (dep_name: string) : string * string =
+    let
+      val dep_locale = detect_locale_of_thm thy dep_name
+    in
+      case dep_locale of
+        NONE => ("theorem", "")
+      | SOME loc =>
+          let
+            val assumptions = extract_locale_assumptions thy loc
+            val loc_prefix = loc ^ "."
+            val short_name =
+              if String.isPrefix loc_prefix dep_name
+              then String.extract (dep_name, size loc_prefix, NONE)
+              else dep_name
+          in
+            if exists (fn an => short_name = an) assumptions
+            then ("assumption", loc)
+            else if String.isSuffix "_def" short_name
+            then ("local_definition", loc)
+            else ("theorem", "")
+          end
+    end
+
+  fun locale_dependencies thy locale_name : {source: string, target: string, pos: string} list =
+    let
+      val deps =
+        (case try (locale__dest_dependencies []) thy of
+          SOME ds => ds | NONE => [])
+    in
+      map_filter (fn {source, target, pos, ...} =>
+        if target = locale_name
+        then SOME {source = locale_name, target = source, pos = pos_to_string pos}
+        else NONE) deps
+    end
+
   (* ---------- Structured records ---------- *)
 
   datatype dep_rec =
     Dep of {
+      kind: string,
       key: string,
       raw: string,
       sel: int,
@@ -146,7 +229,22 @@ struct
       theory: string,
       thm_id: string,
       fingerprint: string,
+      pos: string,
+      locale: string
+    }
+
+  datatype locale_import_rec =
+    Locale_Import of {
+      source_locale: string,
+      target_locale: string,
       pos: string
+    }
+
+  datatype param_rec =
+    Param of {
+      name: string,
+      param_type: string,
+      locale: string
     }
 
   datatype thm_rec =
@@ -163,7 +261,14 @@ struct
       types: string list,
       has_skip_proof: bool,
       pos: string,
-      dependencies: dep_rec list
+      dependencies: dep_rec list,
+      context_kind: string,
+      target_locale: string,
+      locale_params: (string * string) list,
+      locale_assumptions: string list,
+      locale_defines: string list,
+      locale_imports: locale_import_rec list,
+      parameters: param_rec list
     }
 
   (* ---------- Dependency collection for one theorem ---------- *)
@@ -182,8 +287,10 @@ struct
              pos_to_string (thm_command_pos dep_thm))
         | NONE => ("", pos_to_string Position.none))
       val thm_id_s = thm_id_to_string thm_id
+      val (kind, loc) = classify_dep thy raw
     in
       Dep {
+        kind = kind,
         key = key,
         raw = raw,
         sel = sel,
@@ -191,7 +298,8 @@ struct
         theory = thy_n,
         thm_id = thm_id_s,
         fingerprint = fp,
-        pos = pos_s
+        pos = pos_s,
+        locale = loc
       }
     end
 
@@ -240,6 +348,36 @@ struct
               (a, key, pretty, theory, thm_id_s, pos_to_string (thm_command_pos thm))
             end)
 
+      val locale_opt = detect_locale_of_thm thy raw
+      val (ctx_kind, target_loc) =
+        case locale_opt of
+          SOME ln => ("locale", ln)
+        | NONE => ("theory", "")
+      val loc_params =
+        case locale_opt of
+          SOME ln => extract_locale_params ctxt thy ln
+        | NONE => []
+      val loc_assumptions =
+        case locale_opt of
+          SOME ln => extract_locale_assumptions thy ln
+        | NONE => []
+      val loc_defines =
+        case locale_opt of
+          SOME ln => extract_locale_defines thy ln
+        | NONE => []
+      val loc_imports =
+        case locale_opt of
+          SOME ln =>
+            map (fn {source, target, pos} =>
+              Locale_Import {source_locale = source, target_locale = target, pos = pos})
+              (locale_dependencies thy ln)
+        | NONE => []
+      val params =
+        case locale_opt of
+          SOME ln =>
+            map (fn (n, t) => Param {name = n, param_type = t, locale = ln}) loc_params
+        | NONE => []
+
       val deps = thm_deps_records ctxt thm
     in
       Thm_Rec {
@@ -255,16 +393,28 @@ struct
         types = ts,
         has_skip_proof = has_skip,
         pos = pos_s,
-        dependencies = deps
+        dependencies = deps,
+        context_kind = ctx_kind,
+        target_locale = target_loc,
+        locale_params = loc_params,
+        locale_assumptions = loc_assumptions,
+        locale_defines = loc_defines,
+        locale_imports = loc_imports,
+        parameters = params
       }
     end
 
   (* ---------- TOML rendering ---------- *)
 
+  fun toml_pair_array (pairs: (string * string) list) : string =
+    "[" ^ String.concatWith ", " (map (fn (a, b) =>
+      "[" ^ toml_string a ^ ", " ^ toml_string b ^ "]") pairs) ^ "]"
+
   fun render_dep_toml
-    (Dep {key, raw, sel, pretty, theory, thm_id, fingerprint, pos}) =
-    String.concat [
+    (Dep {kind, key, raw, sel, pretty, theory, thm_id, fingerprint, pos, locale}) =
+    String.concat ([
       "[[theorems.dependencies]]\n",
+      "kind = ", toml_string kind, "\n",
       "key = ", toml_string key, "\n",
       "raw = ", toml_string raw, "\n",
       "sel = ", Int.toString sel, "\n",
@@ -272,13 +422,36 @@ struct
       "theory = ", toml_string theory, "\n",
       "thm_id = ", toml_string thm_id, "\n",
       "fingerprint = ", toml_string fingerprint, "\n",
+      "pos = ", toml_string pos, "\n"
+    ] @ (if locale <> "" then ["locale = ", toml_string locale, "\n"] else [])
+      @ ["\n"])
+
+  fun render_locale_import_toml
+    (Locale_Import {source_locale, target_locale, pos}) =
+    String.concat [
+      "[[theorems.locale_imports]]\n",
+      "source_locale = ", toml_string source_locale, "\n",
+      "target_locale = ", toml_string target_locale, "\n",
       "pos = ", toml_string pos, "\n",
+      "\n"
+    ]
+
+  fun render_param_toml
+    (Param {name, param_type, locale}) =
+    String.concat [
+      "[[theorems.parameters]]\n",
+      "name = ", toml_string name, "\n",
+      "type = ", toml_string param_type, "\n",
+      "locale = ", toml_string locale, "\n",
       "\n"
     ]
 
   fun render_thm_toml
     (Thm_Rec {key, raw, sel, pretty, theory, thm_id, fingerprint,
-              proposition, constants, types, has_skip_proof, pos, dependencies}) =
+              proposition, constants, types, has_skip_proof, pos,
+              dependencies, context_kind, target_locale,
+              locale_params, locale_assumptions, locale_defines,
+              locale_imports, parameters}) =
     String.concat (
       [
         "[[theorems]]\n",
@@ -294,8 +467,15 @@ struct
         "types = ", toml_string_array types, "\n",
         "has_skip_proof = ", toml_bool has_skip_proof, "\n",
         "pos = ", toml_string pos, "\n",
+        "context_kind = ", toml_string context_kind, "\n",
+        "target_locale = ", toml_string target_locale, "\n",
+        "locale_params = ", toml_pair_array locale_params, "\n",
+        "locale_assumptions = ", toml_string_array locale_assumptions, "\n",
+        "locale_defines = ", toml_string_array locale_defines, "\n",
         "\n"
       ] @ map render_dep_toml dependencies
+        @ map render_locale_import_toml locale_imports
+        @ map render_param_toml parameters
     )
 
   fun report_thms ctxt (thms: thm list) =

@@ -149,6 +149,41 @@ struct
     try_ml "val context__theory_name: {long: bool} -> theory -> string = Context.theory_name"
     orelse try_ml "val context__theory_name: {long: bool} -> theory -> string = Context.theory_name'"
 
+  (* ---------- Locale API wrappers ---------- *)
+
+  (* Locale.get_locales: stable across 2022-2025 *)
+  val defined_locale__get_locales =
+    try_ml "val locale__get_locales : theory -> string list = Locale.get_locales"
+    orelse try_ml "fun locale__get_locales (_: theory) : string list = []"
+
+  (* Locale.params_of: stable across 2022-2025 *)
+  val defined_locale__params_of =
+    try_ml "val locale__params_of : theory -> string -> ((string * typ) * mixfix) list = Locale.params_of"
+    orelse try_ml "fun locale__params_of (_: theory) (_: string) : ((string * typ) * mixfix) list = []"
+
+  (* Locale.axioms_of: stable across 2022-2025 *)
+  val defined_locale__axioms_of =
+    try_ml "val locale__axioms_of : theory -> string -> thm list = Locale.axioms_of"
+    orelse try_ml "fun locale__axioms_of (_: theory) (_: string) : thm list = []"
+
+  (* Locale.hyp_spec_of: stable across 2022-2025 *)
+  val defined_locale__hyp_spec_of =
+    try_ml "val locale__hyp_spec_of : theory -> string -> Element.context_i list = Locale.hyp_spec_of"
+    orelse try_ml "fun locale__hyp_spec_of (_: theory) (_: string) : Element.context_i list = []"
+
+  (* Locale.dest_dependencies: 2025 has locale_dependency record, earlier has dep *)
+  val defined_locale__dest_dependencies =
+    try_ml "\
+\ fun locale__dest_dependencies (parents: theory list) (thy: theory) = \
+\   map (fn dep => {source = #source dep, target = #target dep, \
+\     pos = #pos dep, serial = #serial dep}) \
+\     (Locale.dest_dependencies parents thy) \
+\"
+    orelse try_ml "\
+\ fun locale__dest_dependencies (_: theory list) (_: theory) \
+\   : {source: string, target: string, pos: Position.T, serial: serial} list = [] \
+\"
+
   (* In 2022/2023/2024, Pretty.unformatted_string_of includes YXML markup bytes
      from Pretty blocks (bg/en stored verbatim in the tree and added to Buffer
      unconditionally).  YXML.content_of strips them, yielding plain text.
